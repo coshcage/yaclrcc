@@ -905,7 +905,7 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 	return ptbl;
 }
 
-static BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce cbfrdc, CBF_Error cbferr)
+BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce cbfrdc, CBF_Error cbferr)
 {
 	BOOL r = TRUE;
 
