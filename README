@@ -1,2 +1,23 @@
 Yet another CLR compiler compiler.
 This project needs StoneValley and svregex.
+https://github.com/coshcage/StoneValley
+https://github.com/coshcage/svregex
+
+Synopsis:
+L2 file:
+d
+c
+
+Each line is a valid regular expression represented by line number.
+Lex program return line number when it matches a string.
+
+Y2 file:
+A : S;
+S : C C;
+C : 1 C;
+C : 2;
+
+In Y2 file, terminal is represented as decimal numbers which returned by lex program.
+And non-terminal is a upper case letter string with under score.
+The parser parses Y2 file to output a BNF list which is the augmented CLR grammar.
+The first line of Y2 file is the starting point of grammar.

@@ -2,9 +2,10 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0208240241L00977
+ * File ID:     0208240241B0208240636L01290
  * License:     GPLv2.
  */
+/* Macro for Visual C compiler. */
 #define _CRT_SECURE_NO_WARNINGS 1
 #include <stdio.h>
 #include <wchar.h>
@@ -18,21 +19,25 @@
 #include "svregex.h"
 #include "yaclrcc.h"
 
+/* Get abstract value of ptrdiff_t. */
 #define GETABS(num) ((num) >=0 ? (num) : -(num))
 
-typedef struct _st_DFASEQ
+/* Structure for DFA sequence. */
+typedef struct st_DFASEQ
 {
-	size_t  num;
+	size_t  num;     /* Returning number. */
 	P_DFA   pdfa;
 	size_t  curstate;
 } DFASEQ, * P_DFASEQ;
 
+/* Enumeration for BNF type. */
 typedef enum en_BNFType
 {
 	BT_TERMINATOR = 1,
 	BT_NONTERMINATOR
 } BNFType;
 
+/* Structure for BNF element. */
 typedef struct st_BNFELEMENT
 {
 	ptrdiff_t name;
@@ -44,18 +49,19 @@ typedef struct st_BNFELEMENT
 	
 } BNFELEMENT, * P_BNFELEMENT;
 
+/* Structure for NFA element. */
 typedef struct st_NFAELE
 {
 	size_t    id;
 	P_ARRAY_Z parrBNFLst;
 } NFAELE, * P_NFAELE;
 
-typedef struct st_TBLELEMENT
-{
-	ptrdiff_t name;
-	void (*action)(void *);
-} TBLELEMENT, * P_TBLELEMENT;
-
+/* Function name: LexCompile
+ * Description:   Compile L file.
+ * Parameter:
+ *    strlex Pointer to a wide character string.
+ * Return value:  New allocated queue of a set of DFAs.
+ */
 P_QUEUE_L LexCompile(wchar_t * strlex)
 {
 	P_QUEUE_L pq;
@@ -93,6 +99,14 @@ P_QUEUE_L LexCompile(wchar_t * strlex)
 	return pq;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsLexerPuppet
+ * Description:   Callback for lex matching.
+ * Parameters:
+ *      pitem Pointer to each node of a queue.
+ *      param Pointer to a size_t[2] array.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsLexerPuppet(void * pitem, size_t param)
 {
 	size_t i;
@@ -112,6 +126,13 @@ static int cbftvsLexerPuppet(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Function name: Lexer
+ * Description:   Lexical analyzer.
+ * Parameters:
+ *         pq Pointer to a queue of DFAs.
+ *         wc Inputted wide character.
+ * Return value:  Line number of regular expression in L file.
+ */
 size_t Lexer(P_QUEUE_L pq, wchar_t wc)
 {
 	size_t a[2];
@@ -124,6 +145,14 @@ size_t Lexer(P_QUEUE_L pq, wchar_t wc)
 	return a[1];
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsLexerDestroyPuppet
+ * Description:   Free DFAs.
+ * Parameters:
+ *      pitem Pointer to each node of a queue.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsLexerDestroyPuppet(void * pitem, size_t param)
 {
 	P_DFASEQ pdfaq = (P_DFASEQ)((P_NODE_S)pitem)->pdata;
@@ -134,18 +163,40 @@ static int cbftvsLexerDestroyPuppet(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
-static void LexDestroy(P_QUEUE_L pq)
+/* Function name: LexDestroy
+ * Description:   Free the queue which is derived form LexCompile.
+ * Parameter:
+ *        pq Pointer to a queue of DFAs.
+ * Return value:  N/A.
+ */
+void LexDestroy(P_QUEUE_L pq)
 {
 	strTraverseLinkedListSC_N(pq->pfront, NULL, cbftvsLexerDestroyPuppet, 0);
 	queDeleteL(pq);
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbfcmpWChar_t
+ * Description:   Compare wchar_t.
+ * Parameters:
+ *         px Pointer to wchar_t.
+ *         py Pointer to another wchar_t.
+ * Return value:  Comparation result.
+ */
 static int cbfcmpWChar_t(const void * px, const void * py)
 {
 	return (int)*(wchar_t *)px - (int)*(wchar_t *)py;
 }
 
-static int cbftvsCmpPtrdifft(const void * px, const void * py)
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbfcmpPtrdifft
+ * Description:   Compare ptrdiff_t.
+ * Parameters:
+ *         px Pointer to ptrdiff_t.
+ *         py Pointer to another ptrdiff_t.
+ * Return value:  Comparation result.
+ */
+static int cbfcmpPtrdifft(const void * px, const void * py)
 {
 	ptrdiff_t x = *(ptrdiff_t *)px;
 	ptrdiff_t y = *(ptrdiff_t *)py;
@@ -154,7 +205,15 @@ static int cbftvsCmpPtrdifft(const void * px, const void * py)
 	return 0;
 }
 
-static int cbftvsCmpPtrdifftAsSeq(const void * px, const void * py)
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbfcmpPtrdifftAsSeq
+ * Description:   Compare ptrdiff_t and arrange result array as a sequence.
+ * Parameters:
+ *         px Pointer to ptrdiff_t.
+ *         py Pointer to another ptrdiff_t.
+ * Return value:  Comparation result.
+ */
+static int cbfcmpPtrdifftAsSeq(const void * px, const void * py)
 {
 	ptrdiff_t x = *(ptrdiff_t *)px;
 	ptrdiff_t y = *(ptrdiff_t *)py;
@@ -165,6 +224,18 @@ static int cbftvsCmpPtrdifftAsSeq(const void * px, const void * py)
 	return x - y;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: EmitSymbol
+ * Description:   Emit lexical symbol.
+ * Parameters:
+ *   pparrbnf Output an array of BNFs.
+ *    ptriest Pointer to a trie.
+ *        wcs Pointer to a buffer.
+ *       type Non terminal or terminal.
+ *psiSymbolCtr Number of symbols.
+ *psetGmrSmbl Pointer to a set to store grammar symbols.
+ * Return value:  N/A.
+ */
 static void EmitSymbol(P_ARRAY_Z * pparrbnf, P_TRIE_A ptriest, wchar_t * wcs, size_t type, size_t * psiSymbolCtr, P_SET_T psetGmrSmbl)
 {
 	size_t * ps;
@@ -192,7 +263,7 @@ static void EmitSymbol(P_ARRAY_Z * pparrbnf, P_TRIE_A ptriest, wchar_t * wcs, si
 	{
 	case BT_TERMINATOR:
 	case BT_NONTERMINATOR:
-		setInsertT(psetGmrSmbl, &be.name, sizeof(ptrdiff_t), cbftvsCmpPtrdifftAsSeq);
+		setInsertT(psetGmrSmbl, &be.name, sizeof(ptrdiff_t), cbfcmpPtrdifftAsSeq);
 		if (NULL == *pparrbnf)
 		{
 			*pparrbnf = strCreateArrayZ(1, sizeof(BNFELEMENT));
@@ -206,6 +277,14 @@ static void EmitSymbol(P_ARRAY_Z * pparrbnf, P_TRIE_A ptriest, wchar_t * wcs, si
 	}
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsDestroyParrlistPuppet
+ * Description:   Free sets.
+ * Parameters:
+ *      pitem Pointer to BNFELEMENT.
+ *      param N/A.
+ * Return value:  CBF_TERMINATE only.
+ */
 static int cbftvsDestroyParrlistPuppet(void * pitem, size_t param)
 {
 	DWC4100(param);
@@ -214,6 +293,14 @@ static int cbftvsDestroyParrlistPuppet(void * pitem, size_t param)
 	return CBF_TERMINATE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsDestroyParrlist
+ * Description:   Free sized arrays.
+ * Parameters:
+ *      pitem Pointer to array.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsDestroyParrlist(void * pitem, size_t param)
 {
 	DWC4100(param);
@@ -225,12 +312,26 @@ static int cbftvsDestroyParrlist(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Function name: DestroyParrList
+ * Description:   Free a BNF list.
+ * Parameter:
+ *  parrlist Pointer to a BNF list.
+ * Return value:  N/A.
+ */
 void DestroyParrList(P_ARRAY_Z parrlist)
 {
 	strTraverseArrayZ(parrlist, sizeof(P_ARRAY_Z), cbftvsDestroyParrlist, 0, FALSE);
 	strDeleteArrayZ(parrlist);
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsPrintParrlistPuppet
+ * Description:   Print parr list.
+ * Parameters:
+ *      pitem Pointer to BNFELEMENT.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsPrintParrlistPuppet(void * pitem, size_t param)
 {
 	P_BNFELEMENT pbe = (P_BNFELEMENT)pitem;
@@ -240,6 +341,14 @@ static int cbftvsPrintParrlistPuppet(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsPrintSetCLR
+ * Description:   Print a set.
+ * Parameters:
+ *      pitem Pointer to each node in a set.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsPrintSetCLR(void * pitem, size_t param)
 {
 	DWC4100(param);
@@ -247,6 +356,14 @@ static int cbftvsPrintSetCLR(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsPrintParrlistPuppet
+ * Description:   Print parr list.
+ * Parameters:
+ *      pitem Pointer to an array.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsPrintParrlist(void * pitem, size_t param)
 {
 	DWC4100(param);
@@ -262,16 +379,30 @@ static int cbftvsPrintParrlist(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Function name: PrintParrList
+ * Description:   Print BNF list.
+ * Parameter:
+ *  parrlist Pointer to a BNF list.
+ * Return value:  N/A.
+ */
 void PrintParrList(P_ARRAY_Z parrlist)
 {
 	strTraverseArrayZ(parrlist, sizeof(P_ARRAY_Z), cbftvsPrintParrlist, 0, FALSE);
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: FIRST
+ * Description:   Get FIRST set of a symbol.
+ * Parameters:
+ * parrBNFLst Pointer to a BNF list.
+ *          a A symbol.
+ * Return value:  Pointer to FIRST set of a symbol.
+ */
 static P_SET_T FIRST(P_ARRAY_Z parrBNFLst, ptrdiff_t a)
 {
 	P_SET_T pset = setCreateT();
 	if (a > 0)	/* a is a terminator. */
-		setInsertT(pset, &a, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+		setInsertT(pset, &a, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 	else /* a is a non-terminator. */
 	{
 		size_t i;
@@ -283,12 +414,21 @@ static P_SET_T FIRST(P_ARRAY_Z parrBNFLst, ptrdiff_t a)
 				((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == a &&
 				((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name > 0
 			)
-				setInsertT(pset, &((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+				setInsertT(pset, &((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 		}
 	}
 	return pset;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: BNFInSetI
+ * Description:   Return whether a BNF is in set I.
+ * Parameters:
+ *      parrI Pointer to a BNF list.
+ *pbnfTemplate Pointer to a BNF.
+ * Return value:  TRUE  BNF is in the set.
+ *                FALSE BNF is NOT in the set.
+ */
 static BOOL BNFInSetI(P_ARRAY_Z parrI, P_ARRAY_Z pbnfTemplate)
 {
 	BOOL r = FALSE;
@@ -313,6 +453,14 @@ static BOOL BNFInSetI(P_ARRAY_Z parrI, P_ARRAY_Z pbnfTemplate)
 	return r;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: CLOSURE
+ * Description:   CLOSURE.
+ * Parameters:
+ *      parrG Pointer to a BNF list.
+ *      parrI Pointer to a BNF list.
+ * Return value:  N/A.
+ */
 static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 {
 	/* A -> alpha B beta, a. */
@@ -377,6 +525,15 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 	}
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: GOTO
+ * Description:   GOTO.
+ * Parameters:
+ *      parrG Pointer to a BNF list.
+ *      parrI Pointer to a BNF list.
+ *          X A symbol.
+ * Return value:  Pointer to a BNF list.
+ */
 static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 {
 	P_ARRAY_Z parrJ = strCreateArrayZ(1, sizeof(P_ARRAY_Z));
@@ -445,6 +602,15 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 	return parrJ;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: IsTheSameBNFSet
+ * Description:   Return whether two BNF sets are the same or not.
+ * Parameters:
+ *      parrx Pointer to a BNF list.
+ *      parry Pointer to a BNF list.
+ * Return value:  TRUE  Same.
+ *                FALSE Not the same.
+ */
 static BOOL IsTheSameBNFSet(P_ARRAY_Z parrx, P_ARRAY_Z parry)
 {
 	size_t i, j;
@@ -460,14 +626,22 @@ static BOOL IsTheSameBNFSet(P_ARRAY_Z parrx, P_ARRAY_Z parry)
 		{
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->name != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->name)
 				return FALSE;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbftvsCmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
 				return FALSE;
 		}
 	}
 	return TRUE;
 }
 
-static int cbfCompareBNFs(void * pitem, size_t param)
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsCompareBNFs
+ * Description:   Compare BNFs.
+ * Parameters:
+ *      pitem Pointer to a VERTEX_L.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE and CBF_TERMINATE respectively.
+ */
+static int cbftvsCompareBNFs(void * pitem, size_t param)
 {
 	size_t * pbfound = (size_t *)param;
 	P_ARRAY_Z parr = (P_ARRAY_Z)1[(size_t *)param];
@@ -481,6 +655,15 @@ static int cbfCompareBNFs(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: ParrInSetY
+ * Description:   Return whether parr is in set Y ot not.
+ * Parameters:
+ *       parr Pointer to a BNF list.
+ *      parry Pointer to a BNF list.
+ * Return value:  TRUE  parr is in the set Y.
+ *                FALSE parr is NOT in the set Y.
+ */
 static BOOL ParrInSetY(P_ARRAY_Z parr, P_ARRAY_Z parry)
 {
 	size_t i, j;
@@ -498,13 +681,21 @@ static BOOL ParrInSetY(P_ARRAY_Z parr, P_ARRAY_Z parry)
 				return FALSE;
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->m.bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->m.bmark)
 				return FALSE;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbftvsCmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
 				return FALSE;
 		}
 	}
 	return TRUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsParrInPgrpC
+ * Description:   Return whether parr is in set C.
+ * Parameters:
+ *      pitem Pointer to a VERTEX_L.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE and CBF_TERMINATE respectively.
+ */
 static int cbftvsParrInPgrpC(void * pitem, size_t param)
 {
 	size_t i, j;
@@ -525,7 +716,7 @@ static int cbftvsParrInPgrpC(void * pitem, size_t param)
 				goto Lbl_PassDetection;
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->m.bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->m.bmark)
 				goto Lbl_PassDetection;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbftvsCmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
 				goto Lbl_PassDetection;
 		}
 		*pbfound = TRUE;
@@ -538,6 +729,14 @@ static int cbftvsParrInPgrpC(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsForEachGmrSmbl
+ * Description:   Repeat each symbol.
+ * Parameters:
+ *      pitem Pointer to each node in the symbol set.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_TERMINATE only.
+ */
 static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 {
 	ptrdiff_t X = *(ptrdiff_t *)P2P_TNODE_BY(pitem)->pdata;
@@ -562,7 +761,7 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 			a[1] = (size_t)parr;
 			a[2] = 0;
 			
-			grpBFSL(pgrpC, (size_t)pNFAEle0, cbfCompareBNFs, (size_t)a);
+			grpBFSL(pgrpC, (size_t)pNFAEle0, cbftvsCompareBNFs, (size_t)a);
 
 			if (FALSE == a[0])
 			{
@@ -602,6 +801,15 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 	}
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: ITEMS
+ * Description:   ITEMS.
+ * Parameters:
+ *      parrG Pointer to a BNF list.
+ *psetGmrSmbl Pointer to a set of symbol.
+ *         p0 Output a vertex ID.
+ * Return value:  Pointer to a NFA graph.
+ */
 static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 {
 	P_GRAPH_L pgrpC = grpCreateL();
@@ -624,7 +832,7 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 0))->m.bmark = TRUE;
 			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->m.pset = setCreateT();
 			i = ACC;
-			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->m.pset, &i, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->m.pset, &i, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 			CLOSURE(parrG, parrI);
 			pNFAEle->parrBNFLst = parrI;
 		}
@@ -654,6 +862,14 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 	return pgrpC;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsDestroyNFAGraph
+ * Description:   Free NFA graph.
+ * Parameters:
+ *      pitem Pointer to each VERTEX_L in the graph.
+ *      param N/A.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsDestroyNFAGraph(void * pitem, size_t param)
 {
 	P_VERTEX_L pvtx = (P_VERTEX_L)pitem;
@@ -665,11 +881,27 @@ static int cbftvsDestroyNFAGraph(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: DestroyNFAGraph
+ * Description:   Free NFA graph.
+ * Parameters:
+ *      pgrpC Pointer to NFA graph.
+ *       vid0 Starting vertex ID.
+ * Return value:  N/A.
+ */
 static void DestroyNFAGraph(P_GRAPH_L pgrpC, size_t vid0)
 {
 	grpBFSL(pgrpC, vid0, cbftvsDestroyNFAGraph, 0);
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsCountNFAVertices
+ * Description:   Count NFA graph vertices.
+ * Parameters:
+ *      pitem N/A.
+ *      param Pointer to a size_t integer.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsCountNFAVertices(void * pitem, size_t param)
 {
 	0[(size_t *)param]++;
@@ -677,6 +909,14 @@ static int cbftvsCountNFAVertices(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsFillTableHeader
+ * Description:   Fill parsing table header.
+ * Parameters:
+ *      pitem Pointer to each node in the set of symbol.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsFillTableHeader(void * pitem, size_t param)
 {
 	strSetValueMatrix
@@ -690,13 +930,21 @@ static int cbftvsFillTableHeader(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsFillTablePuppet
+ * Description:   Fill parsing table.
+ * Parameters:
+ *      pitem Pointer to each node in the edge list.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsFillTablePuppet(void * pitem, size_t param)
 {
 	P_EDGE pedge = (P_EDGE)((P_NODE_S)pitem)->pdata;
 	P_MATRIX ptbl = (P_MATRIX)0[(size_t *)param];
 	P_VERTEX_L pvtx = (P_VERTEX_L)2[(size_t *)param];
 
-	ptrdiff_t * pi = svBinarySearch(&pedge->weight, ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+	ptrdiff_t * pi = svBinarySearch(&pedge->weight, ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 
 	/* ACTION Shift and GOTO. */
 	if (NULL != pi)
@@ -708,6 +956,15 @@ static int cbftvsFillTablePuppet(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: FindBNFInSetGLst
+ * Description:   Find BNF in set G.
+ * Parameters:
+ *      parrG Pointer to a BNF set.
+ *       parr Pointer to a BNF array.
+ * Return value:  Line number of BNF in set G.
+ *                Especially, -1 means BNF not found.
+ */
 static ptrdiff_t FindBNFInSetGLst(P_ARRAY_Z parrG, P_ARRAY_Z parr)
 {
 	size_t i, j;
@@ -728,6 +985,14 @@ static ptrdiff_t FindBNFInSetGLst(P_ARRAY_Z parrG, P_ARRAY_Z parr)
 	return -1;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsFillReduce
+ * Description:   Fill parsing table.
+ * Parameters:
+ *      pitem Pointer to each node in a set.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsFillReduce(void * pitem, size_t param)
 {
 	ptrdiff_t v = *(ptrdiff_t *)P2P_TNODE_BY(pitem)->pdata;
@@ -735,7 +1000,7 @@ static int cbftvsFillReduce(void * pitem, size_t param)
 	P_VERTEX_L pvtx = (P_VERTEX_L)2[(size_t *)param];
 	P_ARRAY_Z parr = (P_ARRAY_Z)3[(size_t *)param];
 
-	ptrdiff_t * pi = svBinarySearch(&v, ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+	ptrdiff_t * pi = svBinarySearch(&v, ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 	
 	if (((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == -1)
 		strSetValueMatrix(ptbl, ((P_NFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &v, sizeof(ptrdiff_t));
@@ -748,6 +1013,14 @@ static int cbftvsFillReduce(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: cbftvsFillTable
+ * Description:   Fill parsing table.
+ * Parameters:
+ *      pitem Pointer to each VERTEX_L in NFA graph.
+ *      param Pointer to a size_t array.
+ * Return value:  CBF_CONTINUE only.
+ */
 static int cbftvsFillTable(void * pitem, size_t param)
 {
 	size_t a[4];
@@ -769,6 +1042,16 @@ static int cbftvsFillTable(void * pitem, size_t param)
 	return CBF_CONTINUE;
 }
 
+/* Attention:     This Is An Internal Function. No Interface for Library Users.
+ * Function name: BuildLR1Table
+ * Description:   Build CLR parsing table.
+ * Parameters:
+ *psetGmrSmbl Pointer to a set of symbol.
+ *      parrG Pointer to BNF set.
+ *      pgrpC Pointer to a NFA graph.
+ *       vid0 Starting vertex ID in the NFA graph.
+ * Return value:  Pointer to a matrix represented table.
+ */
 static P_MATRIX BuildLR1Table(P_SET_T psetGmrSmbl, P_ARRAY_Z parrG, P_GRAPH_L pgrpC, size_t vid0)
 {
 	size_t i = 0;
@@ -791,7 +1074,7 @@ static P_MATRIX BuildLR1Table(P_SET_T psetGmrSmbl, P_ARRAY_Z parrG, P_GRAPH_L pg
 		a[1] = (size_t)&i;
 		setTraverseT(psetGmrSmbl, cbftvsFillTableHeader, (size_t)a, ETM_INORDER);
 		strSetValueMatrix(ptbl, 0, i, &t, sizeof(ptrdiff_t));
-		svQuickSort(ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+		svQuickSort(ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 
 		/* Fill table. */
 		a[0] = (size_t)ptbl;
@@ -803,6 +1086,12 @@ static P_MATRIX BuildLR1Table(P_SET_T psetGmrSmbl, P_ARRAY_Z parrG, P_GRAPH_L pg
 	return ptbl;
 }
 
+/* Function name: PrintCLRTable
+ * Description:   Print CLR parsing table.
+ * Parameter:
+ *      ptbl  Pointer to a matrix represented table.
+ * Return value:  N/A.
+ */
 void PrintCLRTable(P_MATRIX ptbl)
 {
 	if (NULL != ptbl)
@@ -824,6 +1113,13 @@ void PrintCLRTable(P_MATRIX ptbl)
 	}
 }
 
+/* Function name: ConstructCLRTable
+ * Description:   Construct CLR parsing table.
+ * Parameters:
+ *     wcsbnf Pointer to a string of BNFs.
+ *     pparrG Output a pointer to BNF set.
+ * Return value:  Pointer to a matrix represented table.
+ */
 P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 {
 	size_t siSymbolCtr = 1;
@@ -891,7 +1187,7 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 	pgrpC = ITEMS(parrBNFLst, psetGrammarSymbol, &i);
 
 	x = -1;
-	setRemoveT(psetGrammarSymbol, &x, sizeof(ptrdiff_t), cbftvsCmpPtrdifftAsSeq);
+	setRemoveT(psetGrammarSymbol, &x, sizeof(ptrdiff_t), cbfcmpPtrdifftAsSeq);
 
 	ptbl = BuildLR1Table(psetGrammarSymbol, parrBNFLst, pgrpC, i);
 
@@ -905,6 +1201,17 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 	return ptbl;
 }
 
+/* Function name: CLRParse
+ * Description:   The table driven parser.
+ * Parameters:
+ *     ptable Pointer to a matrix represented table.
+ *      parrG Pointer to a BNF set.
+ *      cbfgs Returns a symbol.
+ *     cbfrdc Conduct a reducing procedure.
+ *     cbferr Emmit an error.
+ * Return value:  TRUE  Parsing OK.
+ *                FALSE Parsing failure.
+ */
 BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce cbfrdc, CBF_Error cbferr)
 {
 	BOOL r = TRUE;
@@ -918,10 +1225,11 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 	for (;;)
 	{
 		stkPeepL(&s, sizeof(ptrdiff_t), pstk);
-		pi = svBinarySearch(&a, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+		pi = svBinarySearch(&a, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 		if (NULL != pi)
 		{
 			strGetValueMatrix(&x, ptable, s, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
+
 			if (x > 0)
 			{
 				stkPushL(pstk, &x, sizeof(ptrdiff_t));
@@ -934,7 +1242,7 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 				
 				A = ((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), -x), sizeof(BNFELEMENT), 0))->name;
 
-				pi = svBinarySearch(&A, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbftvsCmpPtrdifft);
+				pi = svBinarySearch(&A, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 				if (NULL != pi)
 				{
 					strGetValueMatrix(&y, ptable, t, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
@@ -969,8 +1277,13 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 	return r;
 }
 
+/* Function name: DestroyCLRTable
+ * Description:   Delete a CLR parsing table.
+ * Parameter:
+ *      ptbl Pointer to a matrix represented table.
+ * Return value:  N/A.
+ */
 void DestroyCLRTable(P_MATRIX ptbl)
 {
 	strDeleteMatrix(ptbl);
 }
-
