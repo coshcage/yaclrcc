@@ -8,8 +8,8 @@
 #ifndef _YACLRCC_H_
 #define _YACLRCC_H_
 
-#include "StoneValley/src/svstring.h"
-#include "StoneValley/src/svqueue.h"
+#include "svstring.h"
+#include "svqueue.h"
 
 /* Accept status. */
 #define ACC ((~(size_t)0) >> 1)

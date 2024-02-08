@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <stdlib.h>
-#include "StoneValley/src/svstring.h"
-#include "StoneValley/src/svqueue.h"
-#include "StoneValley/src/svtree.h"
-#include "StoneValley/src/svset.h"
-#include "StoneValley/src/svgraph.h"
-#include "StoneValley/src/svstack.h"
+#include "svstring.h"
+#include "svqueue.h"
+#include "svtree.h"
+#include "svset.h"
+#include "svgraph.h"
+#include "svstack.h"
 #include "svregex.h"
 #include "yaclrcc.h"
 
