@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <stdlib.h>
+#include <string.h>
 #include "svstring.h"
 #include "svqueue.h"
 #include "svtree.h"
@@ -1226,7 +1227,6 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 	{
 		stkPeepL(&s, sizeof(ptrdiff_t), pstk);
 		pi = svBinarySearch(&a, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
-
 		if (NULL != pi)
 		{
 			strGetValueMatrix(&x, ptable, s, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
