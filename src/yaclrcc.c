@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0210242330L01294
+ * File ID:     0208240241B0210242330L01300
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -1226,6 +1226,7 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 	{
 		stkPeepL(&s, sizeof(ptrdiff_t), pstk);
 		pi = svBinarySearch(&a, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
+
 		if (NULL != pi)
 		{
 			strGetValueMatrix(&x, ptable, s, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
@@ -1247,7 +1248,12 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 				{
 					strGetValueMatrix(&y, ptable, t, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
 					stkPushL(pstk, &y, sizeof(ptrdiff_t));
-					cbfrdc(A);
+
+					if (CBF_CONTINUE != cbfrdc(A))
+					{
+						r = TRUE;
+						break;
+					}
 				}
 				else
 				{

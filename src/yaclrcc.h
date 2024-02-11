@@ -15,8 +15,8 @@
 #define ACC ((~(size_t)0) >> 1)
 
 /* Callback functions for parser. */
-typedef ptrdiff_t(*CBF_GetSymbol)(void);
-typedef void (*CBF_Reduce)(ptrdiff_t n);
+typedef ptrdiff_t (*CBF_GetSymbol)(void);
+typedef int (*CBF_Reduce)(ptrdiff_t n);
 /* Error handle callback. */
 typedef int (*CBF_Error)(void);
 
