@@ -9,7 +9,7 @@ c
 d
 
 Each line is a valid regular expression represented by line number.
-Lex program return line number when it matches a string.
+Lex program returns line number when it matches a string.
 
 Y2 file:
 A : S;
