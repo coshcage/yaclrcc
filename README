@@ -5,8 +5,8 @@ https://github.com/coshcage/svregex
 
 Synopsis:
 L2 file:
-d
 c
+d
 
 Each line is a valid regular expression represented by line number.
 Lex program return line number when it matches a string.
