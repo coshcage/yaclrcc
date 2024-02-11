@@ -1208,7 +1208,7 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
  *      parrG Pointer to a BNF set.
  *      cbfgs Returns a symbol.
  *     cbfrdc Conduct a reducing procedure.
- *     cbferr Emmit an error.
+ *     cbferr Emit an error.
  * Return value:  TRUE  Parsing OK.
  *                FALSE Parsing failure.
  */
