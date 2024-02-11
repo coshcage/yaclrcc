@@ -1249,7 +1249,7 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 					strGetValueMatrix(&y, ptable, t, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
 					stkPushL(pstk, &y, sizeof(ptrdiff_t));
 
-					if (CBF_CONTINUE != cbfrdc(A))
+					if (CBF_CONTINUE != cbfrdc(-x))
 					{
 						r = TRUE;
 						break;
