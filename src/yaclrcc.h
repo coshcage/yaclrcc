@@ -16,9 +16,9 @@
 
 /* Callback functions for parser. */
 typedef ptrdiff_t(*CBF_GetSymbol)(void);
-typedef ptrdiff_t(*CBF_Reduce)(ptrdiff_t n);
+typedef void (*CBF_Reduce)(ptrdiff_t n);
 /* Error handle callback. */
-typedef void (*CBF_Error)(void);
+typedef int (*CBF_Error)(void);
 
 /* Function declarations. */
 P_QUEUE_L LexCompile       (wchar_t * strlex);

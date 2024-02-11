@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0208240636L01290
+ * File ID:     0208240241B0210242330L01294
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -1262,7 +1262,11 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 			}
 			else
 			{
-				cbferr();
+				if (CBF_CONTINUE != cbferr())
+				{
+					r = FALSE;
+					break;
+				}
 			}
 		}
 		else
