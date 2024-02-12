@@ -2,7 +2,7 @@
  * Name:        test.h
  * Description: Compiler launcher.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0211250710L00064
+ * File ID:     0208240241B0211242136L00070
  * License:     GPLv2.
  */
 #include <stdio.h>
@@ -19,11 +19,17 @@ P_QUEUE_L pq;
 
 ptrdiff_t GetSymbol(void)
 {
-	if (i < j)
+	ptrdiff_t r;
+	wchar_t c;
+	if (i <= j)
 	{
-		return Lexer(pq, wc[i++]);
+		c = wc[i++];
+		if (c != L'\0')
+			r = Lexer(pq, c);
+		else
+			r = (ptrdiff_t)ACC;
 	}
-	return 0;
+	return r;
 }
 
 int Reduce(ptrdiff_t n)
