@@ -38,7 +38,7 @@ int Reduce(ptrdiff_t n)
 	return CBF_TERMINATE;
 }
 
-void Error(void)
+int Error(void)
 {
 	printf("ERROR!\n");
 	return CBF_TERMINATE;
