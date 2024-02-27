@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0227240138L01281
+ * File ID:     0208240241B0227240138L01277
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -42,12 +42,8 @@ typedef enum en_BNFType
 typedef struct st_BNFELEMENT
 {
 	ptrdiff_t name;
-	struct st_mark
-	{
-		BOOL bmark;
-		P_SET_T pset;
-	} m;
-	
+	BOOL      bmark;
+	P_SET_T   pset;
 } BNFELEMENT, * P_BNFELEMENT;
 
 /* Structure for NFA element. */
@@ -270,8 +266,8 @@ static void EmitSymbol(P_ARRAY_Z * pparrbnf, P_TRIE_A ptriest, wchar_t * wcs, si
 static int cbftvsDestroyParrlistPuppet(void * pitem, size_t param)
 {
 	DWC4100(param);
-	if (NULL != ((P_BNFELEMENT)pitem)->m.pset)
-		setDeleteT(((P_BNFELEMENT)pitem)->m.pset);
+	if (NULL != ((P_BNFELEMENT)pitem)->pset)
+		setDeleteT(((P_BNFELEMENT)pitem)->pset);
 	return CBF_TERMINATE;
 }
 
@@ -319,7 +315,7 @@ static int cbftvsPrintParrlistPuppet(void * pitem, size_t param)
 	P_BNFELEMENT pbe = (P_BNFELEMENT)pitem;
 	DWC4100(param);
 	printf("(%zd) ", pbe->name);
-	printf("%c", pbe->m.bmark ? '.' : ' ');
+	printf("%c", pbe->bmark ? '.' : ' ');
 	return CBF_CONTINUE;
 }
 
@@ -355,7 +351,7 @@ static int cbftvsPrintParrlist(void * pitem, size_t param)
 
 	printf(" {");
 
-	setTraverseT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)pitem, sizeof(BNFELEMENT), strLevelArrayZ(*(P_ARRAY_Z *)pitem) - 1))->m.pset, cbftvsPrintSetCLR, 0, ETM_INORDER);
+	setTraverseT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)pitem, sizeof(BNFELEMENT), strLevelArrayZ(*(P_ARRAY_Z *)pitem) - 1))->pset, cbftvsPrintSetCLR, 0, ETM_INORDER);
 
 	printf("}\n");
 	return CBF_CONTINUE;
@@ -424,7 +420,7 @@ static BOOL BNFInSetI(P_ARRAY_Z parrI, P_ARRAY_Z pbnfTemplate)
 		{
 			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name != ((P_BNFELEMENT)strLocateItemArrayZ(pbnfTemplate, sizeof(BNFELEMENT), j))->name)
 				goto Lbl_Passover;
-			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->m.bmark != ((P_BNFELEMENT)strLocateItemArrayZ(pbnfTemplate, sizeof(BNFELEMENT), j))->m.bmark)
+			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->bmark != ((P_BNFELEMENT)strLocateItemArrayZ(pbnfTemplate, sizeof(BNFELEMENT), j))->bmark)
 				goto Lbl_Passover;
 		}
 		r = TRUE;
@@ -457,7 +453,7 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 
 		for (j = 0; j < strLevelArrayZ(pbnf); ++j)
 		{
-			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->m.bmark)
+			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->bmark)
 			{
 				k = j + 1;
 				break;
@@ -483,7 +479,7 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 		for (j = 0; j < strLevelArrayZ(parrG); ++j)
 		{
 			P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), j);
-			((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->m.bmark = TRUE;
+			((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->bmark = TRUE;
 			if (B == ((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name)
 			{
 				P_ARRAY_Z parr2;
@@ -493,12 +489,12 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 					strResizeArrayZ(parrI, strLevelArrayZ(parrI) + 1, sizeof(P_ARRAY_Z));
 					parr2 = *(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), strLevelArrayZ(parrI) - 1) = strCreateArrayZ(strLevelArrayZ(parr), sizeof(BNFELEMENT));
 					strCopyArrayZ(parr2, parr, sizeof(BNFELEMENT));
-					((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), 0))->m.bmark = TRUE;
+					((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), 0))->bmark = TRUE;
 
 					if (0 == beta)	/* Copy set FIRST. */
-						((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), strLevelArrayZ(parr2) - 1))->m.pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), strLevelArrayZ(pbnf) - 1))->m.pset, sizeof(ptrdiff_t));
+						((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), strLevelArrayZ(parr2) - 1))->pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), strLevelArrayZ(pbnf) - 1))->pset, sizeof(ptrdiff_t));
 					else
-						((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), strLevelArrayZ(parr2) - 1))->m.pset = FIRST(parrG, B);
+						((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), strLevelArrayZ(parr2) - 1))->pset = FIRST(parrG, B);
 				}
 				else
 					++i;
@@ -532,7 +528,7 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 
 		for (j = 0; j < strLevelArrayZ(parr); ++j)
 		{
-			if (((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), j))->m.bmark)
+			if (((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), j))->bmark)
 			{
 				k = j + 1;
 				break;
@@ -546,16 +542,16 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 			{	/* Add item to set J. */
 				*pJ = strCreateArrayZ(strLevelArrayZ(parr), sizeof(BNFELEMENT));
 				strCopyArrayZ(*pJ, parr, sizeof(BNFELEMENT));
-				((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), strLevelArrayZ(*pJ) - 1))->m.pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->m.pset, sizeof(ptrdiff_t));
+				((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), strLevelArrayZ(*pJ) - 1))->pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->pset, sizeof(ptrdiff_t));
 				
 				for (k = 0; k < strLevelArrayZ(*pJ); ++k)
 				{
-					if (((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->m.bmark)
+					if (((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark)
 					{
 						if (k < strLevelArrayZ(*pJ) - 1)
 						{
-							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k + 1))->m.bmark = TRUE;
-							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->m.bmark = FALSE;
+							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k + 1))->bmark = TRUE;
+							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark = FALSE;
 							break;
 						}
 					}
@@ -578,7 +574,7 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 	}
 	
 	strResizeArrayZ(parrJ, strLevelArrayZ(parrJ) - 1, sizeof(P_ARRAY_Z));
-	if (((P_BNFELEMENT)strLocateItemArrayZ(*(pJ - 1), sizeof(BNFELEMENT), strLevelArrayZ(*(pJ - 1)) - 1))->m.bmark)
+	if (((P_BNFELEMENT)strLocateItemArrayZ(*(pJ - 1), sizeof(BNFELEMENT), strLevelArrayZ(*(pJ - 1)) - 1))->bmark)
 		return parrJ;
 	CLOSURE(parrG, parrJ);
 	return parrJ;
@@ -608,7 +604,7 @@ static BOOL IsTheSameBNFSet(P_ARRAY_Z parrx, P_ARRAY_Z parry)
 		{
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->name != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->name)
 				return FALSE;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->pset, cbfcmpPtrdifft))
 				return FALSE;
 		}
 	}
@@ -661,9 +657,9 @@ static BOOL ParrInSetY(P_ARRAY_Z parr, P_ARRAY_Z parry)
 		{
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->name != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->name)
 				return FALSE;
-			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->m.bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->m.bmark)
+			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->bmark)
 				return FALSE;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->pset, cbfcmpPtrdifft))
 				return FALSE;
 		}
 	}
@@ -696,9 +692,9 @@ static int cbftvsParrInPgrpC(void * pitem, size_t param)
 		{
 			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->name != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->name)
 				goto Lbl_PassDetection;
-			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->m.bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->m.bmark)
+			if (((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), j))->bmark != ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), j))->bmark)
 				goto Lbl_PassDetection;
-			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->m.pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->m.pset, cbfcmpPtrdifft))
+			if (!setIsEqualT(((P_BNFELEMENT)strLocateItemArrayZ(parrBNFx, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFx) - 1))->pset, ((P_BNFELEMENT)strLocateItemArrayZ(parrBNFy, sizeof(BNFELEMENT), strLevelArrayZ(parrBNFy) - 1))->pset, cbfcmpPtrdifft))
 				goto Lbl_PassDetection;
 		}
 		*pbfound = TRUE;
@@ -763,7 +759,7 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 			else
 			{
 				P_ARRAY_Z parrBNF = *(P_ARRAY_Z *)strLocateItemArrayZ(pNFAEle->parrBNFLst, sizeof(P_ARRAY_Z), 0);
-				if (!((P_BNFELEMENT)strLocateItemArrayZ(parrBNF, sizeof(BNFELEMENT), strLevelArrayZ(parrBNF) - 1))->m.bmark)
+				if (!((P_BNFELEMENT)strLocateItemArrayZ(parrBNF, sizeof(BNFELEMENT), strLevelArrayZ(parrBNF) - 1))->bmark)
 				{
 					a[0] = FALSE;
 					a[1] = (size_t)parr;
@@ -811,10 +807,10 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 				strCreateArrayZ(strLevelArrayZ(parrsrc), sizeof(BNFELEMENT));
 			strCopyArrayZ(parrdst, parrsrc, sizeof(BNFELEMENT));
 
-			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 0))->m.bmark = TRUE;
-			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->m.pset = setCreateT();
+			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 0))->bmark = TRUE;
+			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->pset = setCreateT();
 			i = ACC;
-			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->m.pset, &i, sizeof(ptrdiff_t), cbfcmpPtrdifft);
+			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->pset, &i, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 			CLOSURE(parrG, parrI);
 			pNFAEle->parrBNFLst = parrI;
 		}
@@ -1016,7 +1012,7 @@ static int cbftvsFillTable(void * pitem, size_t param)
 	{
 		P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(((P_NFAELE)pvtx->vid)->parrBNFLst, sizeof(P_ARRAY_Z), 0);
 		a[3] = (size_t)parr;
-		setTraverseT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->m.pset, cbftvsFillReduce, (size_t)a, ETM_INORDER);
+		setTraverseT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->pset, cbftvsFillReduce, (size_t)a, ETM_INORDER);
 	}
 	else
 		strTraverseLinkedListSC_N(pvtx->adjlist, NULL, cbftvsFillTablePuppet, (size_t)a);
