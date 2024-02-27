@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0210242330L01300
+ * File ID:     0208240241B0227240138L01281
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -70,7 +70,7 @@ P_QUEUE_L LexCompile(wchar_t * strlex)
 	size_t j = 0;
 	wchar_t buf[BUFSIZ] = { 0 }, * pbuf = buf;
 
-	if (NULL != (pq = queCreateL()));
+	if (NULL != (pq = queCreateL()))
 	{
 		while (L'\0' != *strlex)
 		{
@@ -207,25 +207,6 @@ static int cbfcmpPtrdifft(const void * px, const void * py)
 }
 
 /* Attention:     This Is An Internal Function. No Interface for Library Users.
- * Function name: cbfcmpPtrdifftAsSeq
- * Description:   Compare ptrdiff_t and arrange result array as a sequence.
- * Parameters:
- *         px Pointer to ptrdiff_t.
- *         py Pointer to another ptrdiff_t.
- * Return value:  Comparation result.
- */
-static int cbfcmpPtrdifftAsSeq(const void * px, const void * py)
-{
-	ptrdiff_t x = *(ptrdiff_t *)px;
-	ptrdiff_t y = *(ptrdiff_t *)py;
-	if (x < 0)
-		x = -((ptrdiff_t)ACC + x);
-	if (y < 0)
-		y = -((ptrdiff_t)ACC + y);
-	return x - y;
-}
-
-/* Attention:     This Is An Internal Function. No Interface for Library Users.
  * Function name: EmitSymbol
  * Description:   Emit lexical symbol.
  * Parameters:
@@ -264,7 +245,7 @@ static void EmitSymbol(P_ARRAY_Z * pparrbnf, P_TRIE_A ptriest, wchar_t * wcs, si
 	{
 	case BT_TERMINATOR:
 	case BT_NONTERMINATOR:
-		setInsertT(psetGmrSmbl, &be.name, sizeof(ptrdiff_t), cbfcmpPtrdifftAsSeq);
+		setInsertT(psetGmrSmbl, &be.name, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 		if (NULL == *pparrbnf)
 		{
 			*pparrbnf = strCreateArrayZ(1, sizeof(BNFELEMENT));
@@ -1188,7 +1169,7 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 	pgrpC = ITEMS(parrBNFLst, psetGrammarSymbol, &i);
 
 	x = -1;
-	setRemoveT(psetGrammarSymbol, &x, sizeof(ptrdiff_t), cbfcmpPtrdifftAsSeq);
+	setRemoveT(psetGrammarSymbol, &x, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 
 	ptbl = BuildLR1Table(psetGrammarSymbol, parrBNFLst, pgrpC, i);
 
