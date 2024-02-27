@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0227240138L01279
+ * File ID:     0208240241B0227240138L01280
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -195,10 +195,8 @@ static int cbfcmpWChar_t(const void * px, const void * py)
  */
 static int cbfcmpPtrdifft(const void * px, const void * py)
 {
-	ptrdiff_t x = *(ptrdiff_t *)px;
-	ptrdiff_t y = *(ptrdiff_t *)py;
-	if (x > y) return 1;
-	if (x < y) return -1;
+	if (*(ptrdiff_t *)px > *(ptrdiff_t *)py) return 1;
+	if (*(ptrdiff_t *)px < *(ptrdiff_t *)py) return -1;
 	return 0;
 }
 
@@ -1086,7 +1084,10 @@ void PrintCLRTable(P_MATRIX ptbl)
 			for (i = 0; i < ptbl->col; ++i)
 			{
 				k = *(ptrdiff_t *)strGetValueMatrix(NULL, ptbl, j, i, sizeof(ptrdiff_t));
-				printf("%c%zd\t", k >= 0 ? ' ' : 'r', GETABS(k));
+				if (0 == k)
+					printf("  \t");
+				else
+					printf("%c%zd\t", k >= 0 ? ' ' : 'r', GETABS(k));
 			}
 			printf("\n");
 		}
