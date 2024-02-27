@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0227240138L01277
+ * File ID:     0208240241B0227240138L01281
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -573,7 +573,11 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 		return NULL;
 	}
 	
-	strResizeArrayZ(parrJ, strLevelArrayZ(parrJ) - 1, sizeof(P_ARRAY_Z));
+	if (NULL == strResizeArrayZ(parrJ, strLevelArrayZ(parrJ) - 1, sizeof(P_ARRAY_Z)))
+	{
+		strDeleteArrayZ(parrJ);
+		parrJ = NULL;
+	}
 	if (((P_BNFELEMENT)strLocateItemArrayZ(*(pJ - 1), sizeof(BNFELEMENT), strLevelArrayZ(*(pJ - 1)) - 1))->bmark)
 		return parrJ;
 	CLOSURE(parrG, parrJ);
