@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0227240138L01281
+ * File ID:     0208240241B0227240138L01279
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -442,14 +442,12 @@ static BOOL BNFInSetI(P_ARRAY_Z parrI, P_ARRAY_Z pbnfTemplate)
 static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 {
 	/* A -> alpha B beta, a. */
-	ptrdiff_t A, alpha = 0, B = 0, beta = 0;
+	ptrdiff_t alpha = 0, B = 0, beta = 0;
 	size_t i, j, k = 1;
 	
 	for (i = 0; i < strLevelArrayZ(parrI); ++i)
 	{
 		P_ARRAY_Z pbnf = *(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), i);
-
-		A = ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), 0))->name;
 
 		for (j = 0; j < strLevelArrayZ(pbnf); ++j)
 		{
