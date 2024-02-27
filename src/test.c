@@ -19,7 +19,7 @@ P_QUEUE_L pq;
 
 ptrdiff_t GetSymbol(void)
 {
-	ptrdiff_t r;
+	ptrdiff_t r = 0;
 	wchar_t c;
 	if (i <= j)
 	{
