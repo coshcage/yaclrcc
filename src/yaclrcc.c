@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0227240138L01280
+ * File ID:     0208240241B0304241110L01292
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -377,21 +377,33 @@ void PrintParrList(P_ARRAY_Z parrlist)
 static P_SET_T FIRST(P_ARRAY_Z parrBNFLst, ptrdiff_t a)
 {
 	P_SET_T pset = setCreateT();
+	ptrdiff_t anext = a;
 	if (a > 0)	/* a is a terminator. */
 		setInsertT(pset, &a, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 	else /* a is a non-terminator. */
 	{
 		size_t i;
-		for (i = 0; i < strLevelArrayZ(parrBNFLst); ++i)
+		do
 		{
-			P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(parrBNFLst, sizeof(P_ARRAY_Z), i);
-			if 
-			(
-				((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == a &&
-				((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name > 0
-			)
-				setInsertT(pset, &((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name, sizeof(ptrdiff_t), cbfcmpPtrdifft);
+			for (i = 0, a = anext; i < strLevelArrayZ(parrBNFLst); ++i)
+			{
+				P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(parrBNFLst, sizeof(P_ARRAY_Z), i);
+				if
+				(
+					((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == a &&
+					((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name > 0
+				)
+					setInsertT(pset, &((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name, sizeof(ptrdiff_t), cbfcmpPtrdifft);
+				if
+				(
+					((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == a &&
+					((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name < 0 &&
+					strLevelArrayZ(parr) == 2
+				)
+					anext = ((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 1))->name;
+			}
 		}
+		while (a != anext);
 	}
 	return pset;
 }
