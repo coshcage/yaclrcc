@@ -21,3 +21,5 @@ In Y2 file, terminal is represented as decimal numbers which returned by lex pro
 And non-terminal is a upper case letter string with under score.
 The parser parses Y2 file to output a BNF list which is the augmented CLR grammar.
 The first line of Y2 file is the starting point of grammar.
+
+Special thanks must go to txyximo at 163 dot com.
