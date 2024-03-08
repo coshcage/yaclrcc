@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0304241110L01292
+ * File ID:     0208240241B0308241207L01282
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -454,7 +454,7 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 	/* A -> alpha B beta, a. */
 	ptrdiff_t alpha = 0, B = 0, beta = 0;
 	size_t i, j, k = 1;
-	
+
 	for (i = 0; i < strLevelArrayZ(parrI); ++i)
 	{
 		P_ARRAY_Z pbnf = *(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), i);
@@ -468,21 +468,12 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 			}
 		}
 
-		for (j = k, alpha = 0, B = 0, beta = 0; j < strLevelArrayZ(pbnf); ++j)
-		{
-			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name > 0 && 0 == alpha)
-			{
-				alpha = ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name;
-			}
-			if (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name < 0 && 0 == B)
-			{
-				B = ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name;
-			}
-			else if (0 != B)
-			{
-				beta = ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), j))->name;
-			}
-		}
+		if (strLevelArrayZ(pbnf) == k)
+			return;
+
+		alpha = (1 == k ? 0 : ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), k - 1))->name);
+		B = (((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), k))->name < 0 ? ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), k))->name : 0);
+		beta = (strLevelArrayZ(pbnf) - 1 == k ? 0 : ((P_BNFELEMENT)strLocateItemArrayZ(pbnf, sizeof(BNFELEMENT), k + 1))->name);
 
 		for (j = 0; j < strLevelArrayZ(parrG); ++j)
 		{
@@ -504,12 +495,11 @@ static void CLOSURE(P_ARRAY_Z parrG, P_ARRAY_Z parrI)
 					else
 						((P_BNFELEMENT)strLocateItemArrayZ(parr2, sizeof(BNFELEMENT), strLevelArrayZ(parr2) - 1))->pset = FIRST(parrG, B);
 				}
-				else
-					++i;
 			}
 		}
 	}
 }
+
 
 /* Attention:     This Is An Internal Function. No Interface for Library Users.
  * Function name: GOTO
@@ -543,37 +533,34 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 			}
 		}
 
-		for (j = k; j < strLevelArrayZ(parr); ++j)
-		{
-			x = ((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), j))->name;
-			if (x == X)
-			{	/* Add item to set J. */
-				*pJ = strCreateArrayZ(strLevelArrayZ(parr), sizeof(BNFELEMENT));
-				strCopyArrayZ(*pJ, parr, sizeof(BNFELEMENT));
-				((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), strLevelArrayZ(*pJ) - 1))->pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->pset, sizeof(ptrdiff_t));
+		if (k < strLevelArrayZ(parr))
+			x = ((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), k))->name;
+		else
+			continue;
+		if (x == X)
+		{	/* Add item to set J. */
+			*pJ = strCreateArrayZ(strLevelArrayZ(parr), sizeof(BNFELEMENT));
+			strCopyArrayZ(*pJ, parr, sizeof(BNFELEMENT));
+			((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), strLevelArrayZ(*pJ) - 1))->pset = setCopyT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->pset, sizeof(ptrdiff_t));
 				
-				for (k = 0; k < strLevelArrayZ(*pJ); ++k)
+			for (k = 0; k < strLevelArrayZ(*pJ) - 1; ++k)
+			{
+				if (((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark)
 				{
-					if (((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark)
+					if (k < strLevelArrayZ(*pJ) - 1)
 					{
-						if (k < strLevelArrayZ(*pJ) - 1)
-						{
-							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k + 1))->bmark = TRUE;
-							((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark = FALSE;
-							break;
-						}
+						((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k + 1))->bmark = TRUE;
+						((P_BNFELEMENT)strLocateItemArrayZ(*pJ, sizeof(BNFELEMENT), k))->bmark = FALSE;
+						break;
 					}
 				}
-
-				strResizeArrayZ(parrJ, strLevelArrayZ(parrJ) + 1, sizeof(P_ARRAY_Z));
-				++pJ;
-				*pJ = NULL;
-				goto Lbl_ReturnCLOSUREJ;
 			}
+
+			strResizeArrayZ(parrJ, strLevelArrayZ(parrJ) + 1, sizeof(P_ARRAY_Z));
+			pJ = (P_ARRAY_Z *)strLocateItemArrayZ(parrJ, sizeof(P_ARRAY_Z), strLevelArrayZ(parrJ) - 1);
+			*pJ = NULL;
 		}
 	}
-
-	Lbl_ReturnCLOSUREJ:
 
 	if (strLevelArrayZ(parrJ) == 1 && NULL == *(P_ARRAY_Z *)strLocateItemArrayZ(parrJ, sizeof(P_ARRAY_Z), 0))
 	{
@@ -586,8 +573,7 @@ static P_ARRAY_Z GOTO(P_ARRAY_Z parrG, P_ARRAY_Z parrI, ptrdiff_t X)
 		strDeleteArrayZ(parrJ);
 		parrJ = NULL;
 	}
-	if (((P_BNFELEMENT)strLocateItemArrayZ(*(pJ - 1), sizeof(BNFELEMENT), strLevelArrayZ(*(pJ - 1)) - 1))->bmark)
-		return parrJ;
+
 	CLOSURE(parrG, parrJ);
 	return parrJ;
 }
@@ -823,7 +809,11 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 			((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->pset = setCreateT();
 			i = ACC;
 			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->pset, &i, sizeof(ptrdiff_t), cbfcmpPtrdifft);
+			
 			CLOSURE(parrG, parrI);
+
+			PrintParrList(parrI);
+
 			pNFAEle->parrBNFLst = parrI;
 		}
 		pNFAEle0 = pNFAEle;
