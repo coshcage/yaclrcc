@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0308241207L01282
+ * File ID:     0208240241B0308241207L01280
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -811,8 +811,6 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 			setInsertT(((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrI, sizeof(P_ARRAY_Z), 0), sizeof(BNFELEMENT), 1))->pset, &i, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 			
 			CLOSURE(parrG, parrI);
-
-			PrintParrList(parrI);
 
 			pDFAEle->parrBNFLst = parrI;
 		}
