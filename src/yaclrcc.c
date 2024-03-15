@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0308241207L01280
+ * File ID:     0208240241B0315240922L01288
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -1192,20 +1192,25 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
  *     cbferr Emit an error.
  * Return value:  TRUE  Parsing OK.
  *                FALSE Parsing failure.
+ * Tip:           Reference goes here: https://serokell.io/blog/how-to-implement-lr1-parser
  */
 BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce cbfrdc, CBF_Error cbferr)
 {
 	BOOL r = TRUE;
 
-	P_STACK_L pstk = stkCreateL();
+	size_t i;
+
+	P_STACK_L pstkStatus = stkCreateL();
+	P_STACK_L pstkSymbol = stkCreateL();
 
 	ptrdiff_t a = cbfgs(), s = 1, x, y, * pi, t, A;
 
-	stkPushL(pstk, &s, sizeof(ptrdiff_t));
+	stkPushL(pstkStatus, &s, sizeof(ptrdiff_t));
+	stkPushL(pstkSymbol, &a, sizeof(ptrdiff_t));
 
 	for (;;)
 	{
-		stkPeepL(&s, sizeof(ptrdiff_t), pstk);
+		stkPeepL(&s, sizeof(ptrdiff_t), pstkStatus);
 		pi = svBinarySearch(&a, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 		if (NULL != pi)
 		{
@@ -1213,21 +1218,23 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 
 			if (x > 0)
 			{
-				stkPushL(pstk, &x, sizeof(ptrdiff_t));
+				stkPushL(pstkStatus, &x, sizeof(ptrdiff_t));
 				a = cbfgs();
+				stkPushL(pstkSymbol, &a, sizeof(ptrdiff_t));
 			}
 			else if (x < 0)
 			{
-				stkPopL(&t, sizeof(ptrdiff_t), pstk);
-				stkPeepL(&t, sizeof(ptrdiff_t), pstk);
-				
 				A = ((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), -x), sizeof(BNFELEMENT), 0))->name;
+
+				for (i = 0; i < strLevelArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), -x)) - 1; ++i)
+					stkPopL(&t, sizeof(ptrdiff_t), pstkStatus);
 
 				pi = svBinarySearch(&A, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 				if (NULL != pi)
 				{
+					stkPeepL(&t, sizeof(ptrdiff_t), pstkStatus);
 					strGetValueMatrix(&y, ptable, t, pi - (ptrdiff_t *)ptable->arrz.pdata, sizeof(ptrdiff_t));
-					stkPushL(pstk, &y, sizeof(ptrdiff_t));
+					stkPushL(pstkStatus, &y, sizeof(ptrdiff_t));
 
 					if (CBF_CONTINUE != cbfrdc(-x))
 					{
@@ -1262,7 +1269,8 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 		}
 	}
 
-	stkDeleteL(pstk);
+	stkDeleteL(pstkStatus);
+	stkDeleteL(pstkSymbol);
 
 	return r;
 }
