@@ -2,7 +2,7 @@
  * Name:        yaclrcc.h
  * Description: Yet another CLR compiler compiler.
  * Author:      cosh.cage#hotmail.com
- * File ID:     0208240241B0315240922L01288
+ * File ID:     0208240241B0315240922L01291
  * License:     GPLv2.
  */
 /* Macro for Visual C compiler. */
@@ -1227,7 +1227,10 @@ BOOL CLRParse(P_MATRIX ptable, P_ARRAY_Z parrG, CBF_GetSymbol cbfgs, CBF_Reduce 
 				A = ((P_BNFELEMENT)strLocateItemArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), -x), sizeof(BNFELEMENT), 0))->name;
 
 				for (i = 0; i < strLevelArrayZ(*(P_ARRAY_Z *)strLocateItemArrayZ(parrG, sizeof(P_ARRAY_Z), -x)) - 1; ++i)
+				{
 					stkPopL(&t, sizeof(ptrdiff_t), pstkStatus);
+					stkPopL(&t, sizeof(ptrdiff_t), pstkSymbol);
+				}
 
 				pi = svBinarySearch(&A, ptable->arrz.pdata, ptable->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 				if (NULL != pi)
