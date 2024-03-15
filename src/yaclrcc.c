@@ -46,12 +46,12 @@ typedef struct st_BNFELEMENT
 	P_SET_T   pset;
 } BNFELEMENT, * P_BNFELEMENT;
 
-/* Structure for NFA element. */
-typedef struct st_NFAELE
+/* Structure for DFA element. */
+typedef struct st_DFAELE
 {
 	size_t    id;
 	P_ARRAY_Z parrBNFLst;
-} NFAELE, * P_NFAELE;
+} DFAELE, * P_DFAELE;
 
 /* Function name: LexCompile
  * Description:   Compile L file.
@@ -623,7 +623,7 @@ static int cbftvsCompareBNFs(void * pitem, size_t param)
 	P_ARRAY_Z parr = (P_ARRAY_Z)1[(size_t *)param];
 	P_VERTEX_L pvtx = (P_VERTEX_L)pitem;
 
-	if (IsTheSameBNFSet(parr, ((P_NFAELE)pvtx->vid)->parrBNFLst))
+	if (IsTheSameBNFSet(parr, ((P_DFAELE)pvtx->vid)->parrBNFLst))
 	{
 		*pbfound = TRUE;
 		return CBF_TERMINATE;
@@ -678,7 +678,7 @@ static int cbftvsParrInPgrpC(void * pitem, size_t param)
 	size_t * pbfound = (size_t *)param;
 	P_ARRAY_Z parr = (P_ARRAY_Z)1[(size_t *)param];
 	P_VERTEX_L pvtx = (P_VERTEX_L)pitem;
-	P_ARRAY_Z parry = ((P_NFAELE)pvtx->vid)->parrBNFLst;
+	P_ARRAY_Z parry = ((P_DFAELE)pvtx->vid)->parrBNFLst;
 	P_ARRAY_Z parrBNFx = *(P_ARRAY_Z *)strLocateItemArrayZ(parr, sizeof(P_ARRAY_Z), 0);
 
 	for (i = 0; i < strLevelArrayZ(parry); ++i)
@@ -721,13 +721,13 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 	else
 	{
 		P_GRAPH_L pgrpC = (P_GRAPH_L)0[(size_t *)param];
-		P_NFAELE pNFAEle = (P_NFAELE)1[(size_t *)param];
+		P_DFAELE pDFAEle = (P_DFAELE)1[(size_t *)param];
 		P_QUEUE_L pq = (P_QUEUE_L)2[(size_t *)param];
 		P_ARRAY_Z parrG = (P_ARRAY_Z)3[(size_t *)param];
-		size_t * pNFAEleId = (size_t *)4[(size_t *)param];
-		P_NFAELE pNFAEle0 = (P_NFAELE)5[(size_t *)param];
+		size_t * pDFAEleId = (size_t *)4[(size_t *)param];
+		P_DFAELE pDFAEle0 = (P_DFAELE)5[(size_t *)param];
 
-		P_ARRAY_Z parr = GOTO(parrG, pNFAEle->parrBNFLst, X);
+		P_ARRAY_Z parr = GOTO(parrG, pDFAEle->parrBNFLst, X);
 
 		if (NULL != parr)
 		{
@@ -737,36 +737,36 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
 			a[1] = (size_t)parr;
 			a[2] = 0;
 			
-			grpBFSL(pgrpC, (size_t)pNFAEle0, cbftvsCompareBNFs, (size_t)a);
+			grpBFSL(pgrpC, (size_t)pDFAEle0, cbftvsCompareBNFs, (size_t)a);
 
 			if (FALSE == a[0])
 			{
-				P_NFAELE pNFAEle2 = (P_NFAELE)malloc(sizeof(NFAELE));
+				P_DFAELE pDFAEle2 = (P_DFAELE)malloc(sizeof(DFAELE));
 
-				if (NULL != pNFAEle2)
+				if (NULL != pDFAEle2)
 				{
-					pNFAEle2->id = (*pNFAEleId)++;
-					pNFAEle2->parrBNFLst = parr;
+					pDFAEle2->id = (*pDFAEleId)++;
+					pDFAEle2->parrBNFLst = parr;
 
-					grpInsertVertexL(pgrpC, (size_t)pNFAEle2);
-					queInsertL(pq, &pNFAEle2, sizeof(size_t));
+					grpInsertVertexL(pgrpC, (size_t)pDFAEle2);
+					queInsertL(pq, &pDFAEle2, sizeof(size_t));
 
-					grpInsertEdgeL(pgrpC, (size_t)pNFAEle, (size_t)pNFAEle2, (size_t)X);
+					grpInsertEdgeL(pgrpC, (size_t)pDFAEle, (size_t)pDFAEle2, (size_t)X);
 				}
 			}
 			else
 			{
-				P_ARRAY_Z parrBNF = *(P_ARRAY_Z *)strLocateItemArrayZ(pNFAEle->parrBNFLst, sizeof(P_ARRAY_Z), 0);
+				P_ARRAY_Z parrBNF = *(P_ARRAY_Z *)strLocateItemArrayZ(pDFAEle->parrBNFLst, sizeof(P_ARRAY_Z), 0);
 				if (!((P_BNFELEMENT)strLocateItemArrayZ(parrBNF, sizeof(BNFELEMENT), strLevelArrayZ(parrBNF) - 1))->bmark)
 				{
 					a[0] = FALSE;
 					a[1] = (size_t)parr;
 					a[2] = 0;
 
-					grpBFSL(pgrpC, (size_t)pNFAEle0, cbftvsParrInPgrpC, (size_t)a);
+					grpBFSL(pgrpC, (size_t)pDFAEle0, cbftvsParrInPgrpC, (size_t)a);
 
 					if (a[0])
-						grpInsertEdgeL(pgrpC, (size_t)pNFAEle, (size_t)a[2], (size_t)X);
+						grpInsertEdgeL(pgrpC, (size_t)pDFAEle, (size_t)a[2], (size_t)X);
 				}
 				DestroyParrList(parr);
 				parr = NULL;
@@ -784,19 +784,19 @@ static int cbftvsForEachGmrSmbl(void * pitem, size_t param)
  *      parrG Pointer to a BNF list.
  *psetGmrSmbl Pointer to a set of symbol.
  *         p0 Output a vertex ID.
- * Return value:  Pointer to a NFA graph.
+ * Return value:  Pointer to a DFA graph.
  */
 static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 {
 	P_GRAPH_L pgrpC = grpCreateL();
-	P_NFAELE pNFAEle = (P_NFAELE)malloc(sizeof(NFAELE));
+	P_DFAELE pDFAEle = (P_DFAELE)malloc(sizeof(DFAELE));
 	P_QUEUE_L pq = queCreateL();
 	size_t nFAEleId = 0;
-	P_NFAELE pNFAEle0;
+	P_DFAELE pDFAEle0;
 
-	if (NULL != pNFAEle)
+	if (NULL != pDFAEle)
 	{
-		pNFAEle->id = nFAEleId++;
+		pDFAEle->id = nFAEleId++;
 		{
 			size_t i;
 			P_ARRAY_Z parrI = strCreateArrayZ(1, sizeof(P_ARRAY_Z));
@@ -814,24 +814,24 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 
 			PrintParrList(parrI);
 
-			pNFAEle->parrBNFLst = parrI;
+			pDFAEle->parrBNFLst = parrI;
 		}
-		pNFAEle0 = pNFAEle;
+		pDFAEle0 = pDFAEle;
 		if (p0)
-			*p0 = (size_t)pNFAEle0;
-		grpInsertVertexL(pgrpC, (size_t)pNFAEle);
-		queInsertL(pq, &pNFAEle, sizeof(P_NFAELE));
+			*p0 = (size_t)pDFAEle0;
+		grpInsertVertexL(pgrpC, (size_t)pDFAEle);
+		queInsertL(pq, &pDFAEle, sizeof(P_DFAELE));
 		while (!queIsEmptyL(pq))
 		{
 			size_t a[6];
-			queRemoveL(&pNFAEle, sizeof(P_NFAELE), pq);
+			queRemoveL(&pDFAEle, sizeof(P_DFAELE), pq);
 			
 			a[0] = (size_t)pgrpC;
-			a[1] = (size_t)pNFAEle;
+			a[1] = (size_t)pDFAEle;
 			a[2] = (size_t)pq;
 			a[3] = (size_t)parrG;
 			a[4] = (size_t)&nFAEleId;
-			a[5] = (size_t)pNFAEle0;
+			a[5] = (size_t)pDFAEle0;
 
 			setTraverseT(psetGmrSmbl, cbftvsForEachGmrSmbl, (size_t)a, ETM_INORDER);
 
@@ -843,46 +843,46 @@ static P_GRAPH_L ITEMS(P_ARRAY_Z parrG, P_SET_T psetGmrSmbl, size_t * p0)
 }
 
 /* Attention:     This Is An Internal Function. No Interface for Library Users.
- * Function name: cbftvsDestroyNFAGraph
- * Description:   Free NFA graph.
+ * Function name: cbftvsDestroyDFAGraph
+ * Description:   Free DFA graph.
  * Parameters:
  *      pitem Pointer to each VERTEX_L in the graph.
  *      param N/A.
  * Return value:  CBF_CONTINUE only.
  */
-static int cbftvsDestroyNFAGraph(void * pitem, size_t param)
+static int cbftvsDestroyDFAGraph(void * pitem, size_t param)
 {
 	P_VERTEX_L pvtx = (P_VERTEX_L)pitem;
-	P_NFAELE pNFAEle = (P_NFAELE)pvtx->vid;
+	P_DFAELE pDFAEle = (P_DFAELE)pvtx->vid;
 	DWC4100(param);
-	DestroyParrList(pNFAEle->parrBNFLst);
-	free(pNFAEle);
+	DestroyParrList(pDFAEle->parrBNFLst);
+	free(pDFAEle);
 
 	return CBF_CONTINUE;
 }
 
 /* Attention:     This Is An Internal Function. No Interface for Library Users.
- * Function name: DestroyNFAGraph
- * Description:   Free NFA graph.
+ * Function name: DestroyDFAGraph
+ * Description:   Free DFA graph.
  * Parameters:
- *      pgrpC Pointer to NFA graph.
+ *      pgrpC Pointer to DFA graph.
  *       vid0 Starting vertex ID.
  * Return value:  N/A.
  */
-static void DestroyNFAGraph(P_GRAPH_L pgrpC, size_t vid0)
+static void DestroyDFAGraph(P_GRAPH_L pgrpC, size_t vid0)
 {
-	grpBFSL(pgrpC, vid0, cbftvsDestroyNFAGraph, 0);
+	grpBFSL(pgrpC, vid0, cbftvsDestroyDFAGraph, 0);
 }
 
 /* Attention:     This Is An Internal Function. No Interface for Library Users.
- * Function name: cbftvsCountNFAVertices
- * Description:   Count NFA graph vertices.
+ * Function name: cbftvsCountDFAVertices
+ * Description:   Count DFA graph vertices.
  * Parameters:
  *      pitem N/A.
  *      param Pointer to a size_t integer.
  * Return value:  CBF_CONTINUE only.
  */
-static int cbftvsCountNFAVertices(void * pitem, size_t param)
+static int cbftvsCountDFAVertices(void * pitem, size_t param)
 {
 	0[(size_t *)param]++;
 	DWC4100(pitem);
@@ -929,8 +929,8 @@ static int cbftvsFillTablePuppet(void * pitem, size_t param)
 	/* ACTION Shift and GOTO. */
 	if (NULL != pi)
 	{
-		ptrdiff_t g = ((P_NFAELE)pedge->vid)->id + 1;
-		strSetValueMatrix(ptbl, ((P_NFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &g, sizeof(ptrdiff_t));
+		ptrdiff_t g = ((P_DFAELE)pedge->vid)->id + 1;
+		strSetValueMatrix(ptbl, ((P_DFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &g, sizeof(ptrdiff_t));
 	}
 
 	return CBF_CONTINUE;
@@ -983,11 +983,11 @@ static int cbftvsFillReduce(void * pitem, size_t param)
 	ptrdiff_t * pi = svBinarySearch(&v, ptbl->arrz.pdata, ptbl->col, sizeof(ptrdiff_t), cbfcmpPtrdifft);
 	
 	if (((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), 0))->name == -1)
-		strSetValueMatrix(ptbl, ((P_NFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &v, sizeof(ptrdiff_t));
+		strSetValueMatrix(ptbl, ((P_DFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &v, sizeof(ptrdiff_t));
 	else
 	{
 		v = -FindBNFInSetGLst((P_ARRAY_Z)1[(size_t *)param], (P_ARRAY_Z)3[(size_t *)param]);
-		strSetValueMatrix(ptbl, ((P_NFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &v, sizeof(ptrdiff_t));
+		strSetValueMatrix(ptbl, ((P_DFAELE)pvtx->vid)->id + 1, pi - (ptrdiff_t *)ptbl->arrz.pdata, &v, sizeof(ptrdiff_t));
 	}
 
 	return CBF_CONTINUE;
@@ -997,7 +997,7 @@ static int cbftvsFillReduce(void * pitem, size_t param)
  * Function name: cbftvsFillTable
  * Description:   Fill parsing table.
  * Parameters:
- *      pitem Pointer to each VERTEX_L in NFA graph.
+ *      pitem Pointer to each VERTEX_L in DFA graph.
  *      param Pointer to a size_t array.
  * Return value:  CBF_CONTINUE only.
  */
@@ -1005,14 +1005,14 @@ static int cbftvsFillTable(void * pitem, size_t param)
 {
 	size_t a[4];
 	P_VERTEX_L pvtx = (P_VERTEX_L)pitem;
-	P_NFAELE pNFAEle = (P_NFAELE)pvtx->vid;
+	P_DFAELE pDFAEle = (P_DFAELE)pvtx->vid;
 
 	memcpy(a, (const void *)param, sizeof(ptrdiff_t) * 2);
 	a[2] = (size_t)pvtx;
 
-	if (strLevelArrayZ(pNFAEle->parrBNFLst) == 1)
+	if (strLevelArrayZ(pDFAEle->parrBNFLst) == 1)
 	{
-		P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(((P_NFAELE)pvtx->vid)->parrBNFLst, sizeof(P_ARRAY_Z), 0);
+		P_ARRAY_Z parr = *(P_ARRAY_Z *)strLocateItemArrayZ(((P_DFAELE)pvtx->vid)->parrBNFLst, sizeof(P_ARRAY_Z), 0);
 		a[3] = (size_t)parr;
 		setTraverseT(((P_BNFELEMENT)strLocateItemArrayZ(parr, sizeof(BNFELEMENT), strLevelArrayZ(parr) - 1))->pset, cbftvsFillReduce, (size_t)a, ETM_INORDER);
 	}
@@ -1028,8 +1028,8 @@ static int cbftvsFillTable(void * pitem, size_t param)
  * Parameters:
  *psetGmrSmbl Pointer to a set of symbol.
  *      parrG Pointer to BNF set.
- *      pgrpC Pointer to a NFA graph.
- *       vid0 Starting vertex ID in the NFA graph.
+ *      pgrpC Pointer to a DFA graph.
+ *       vid0 Starting vertex ID in the DFA graph.
  * Return value:  Pointer to a matrix represented table.
  */
 static P_MATRIX BuildLR1Table(P_SET_T psetGmrSmbl, P_ARRAY_Z parrG, P_GRAPH_L pgrpC, size_t vid0)
@@ -1038,7 +1038,7 @@ static P_MATRIX BuildLR1Table(P_SET_T psetGmrSmbl, P_ARRAY_Z parrG, P_GRAPH_L pg
 
 	P_MATRIX ptbl = NULL;
 
-	grpBFSL(pgrpC, vid0, cbftvsCountNFAVertices, (size_t)&i);
+	grpBFSL(pgrpC, vid0, cbftvsCountDFAVertices, (size_t)&i);
 	/* Count how many columns. */
 
 	if (NULL != (ptbl = strCreateMatrix(i + 1, setSizeT(psetGmrSmbl) + 1, sizeof(ptrdiff_t))))
@@ -1174,7 +1174,7 @@ P_MATRIX ConstructCLRTable(wchar_t * wcsbnf, P_ARRAY_Z * pparrG)
 
 	ptbl = BuildLR1Table(psetGrammarSymbol, parrBNFLst, pgrpC, i);
 
-	DestroyNFAGraph(pgrpC, i);
+	DestroyDFAGraph(pgrpC, i);
 
 	setDeleteT(psetGrammarSymbol);
 
